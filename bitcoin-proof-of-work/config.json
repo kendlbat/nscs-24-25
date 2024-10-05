@@ -1,0 +1,15 @@
+{
+    "mqtt": {
+        "url": "mqtt://broker.hivemq.com",
+        "port": 1883,
+        "username": "username",
+        "password": "password",
+        "topics": {
+            "newblock": "htlvillach/5BHIF/newblock",
+            "newtransaction": "htlvillach/5BHIF/newtransaction"
+        }
+    },
+    "client": {
+        "owner": "kendlbat-5BHIF"
+    }
+}

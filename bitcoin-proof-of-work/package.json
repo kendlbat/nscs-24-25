@@ -1,0 +1,21 @@
+{
+    "name": "nscs-btc",
+    "version": "1.0.0",
+    "description": "Bitcoin Implementation",
+    "main": "index.ts",
+    "scripts": {
+        "start": "pnpm tsx index.ts"
+    },
+    "keywords": [],
+    "author": "Tobias Kendlbacher",
+    "license": "ISC",
+    "type": "module",
+    "devDependencies": {
+        "@types/node": "^22.7.4"
+    },
+    "dependencies": {
+        "tsx": "^4.19.1",
+        "mqtt": "^5.10.1",
+        "winston": "^3.15.0"
+    }
+}

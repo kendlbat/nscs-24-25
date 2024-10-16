@@ -20,6 +20,7 @@ exchange.onNewTransaction(async (transaction) => {
         exchange.publishBlock(block);
     } catch (e) {
         logger.error(`Failed to find block: ${transaction.block.curNr}`);
+        logger.error(e);
     }
 });
 

@@ -1,1 +1,4 @@
 node_modules/
+block.log
+nonce.log
+error.log

@@ -11,5 +11,6 @@
     },
     "client": {
         "owner": "kendlbat"
-    }
+    },
+    "threadCount": 12
 }

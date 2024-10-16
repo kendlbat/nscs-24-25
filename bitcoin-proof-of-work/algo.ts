@@ -1,5 +1,6 @@
 import * as crypto from "node:crypto";
 import child_process, { ChildProcess } from "node:child_process";
+import { threadCount } from "./config.json";
 
 function serializeBlockPayload(block: Block): string {
     return `${block.block.curNr}${block.block.timestamp}${block.block.transaction}${block.block.previoushash}${block.block.pow}${block.block.owner}${block.block.nonce}`;
@@ -26,7 +27,7 @@ export function tryProveThis(transaction: Transaction): {
     let prom = new Promise<Block>((resolve, reject) => {
         // Spawn a node process with IPC enabled, send the transaction to it
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < threadCount; i++) {
             const worker = child_process.fork(
                 new URL("./worker.ts", import.meta.url).pathname,
                 [],

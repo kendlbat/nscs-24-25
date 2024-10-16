@@ -121,6 +121,13 @@ export class MQTTExchange implements Exchange {
         });
     }
 
+    publishTransaction(transaction: Transaction) {
+        this.client.publish(
+            config.mqtt.topics.newtransaction,
+            this.serializer.serializeTransaction(transaction)
+        );
+    }
+
     publishBlock(block: Block) {
         this.client.publish(config.mqtt.topics.newblock, JSON.stringify(block));
     }

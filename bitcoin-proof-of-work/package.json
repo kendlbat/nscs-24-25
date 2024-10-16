@@ -4,7 +4,8 @@
     "description": "Bitcoin Implementation",
     "main": "index.ts",
     "scripts": {
-        "start": "pnpm tsx index.ts"
+        "start": "pnpm tsx index.ts",
+        "publish": "pnpm tsx publish.ts"
     },
     "keywords": [],
     "author": "Tobias Kendlbacher",

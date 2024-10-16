@@ -98,7 +98,7 @@ export class MQTTExchange implements Exchange {
                 try {
                     cbk(this.serializer.deserializeBlock(message.toString()));
                 } catch (e) {
-                    logger.error("Invalid block recieved", e);
+                    logger.warn("Invalid block recieved", e);
                 }
             }
         });

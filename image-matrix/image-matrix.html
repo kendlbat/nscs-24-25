@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>kendlbat - Image Matrices</title>
+        <style>
+            #image-matrix {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 1px;
+            }
+            form {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+                gap: 1px;
+                padding-bottom: 10px;
+            }
+
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+            #image-matrix div {
+                border: 1px solid black;
+            }
+        </style>
+    </head>
+    <body>
+        <form action="javascript:void(0);">
+            <input type="file" accept="image/*" id="image-upload" />
+            <!-- slider for red -->
+            <input
+                type="range"
+                id="red-slider"
+                min="0"
+                max="255"
+                value="255"
+                step="1"
+            />
+            <input
+                type="range"
+                id="green-slider"
+                min="0"
+                max="255"
+                value="255"
+                step="1"
+            />
+            <input
+                type="range"
+                id="blue-slider"
+                min="0"
+                max="255"
+                value="255"
+                step="1"
+            />
+        </form>
+        <!--table with 2 cols and 2 rows-->
+        <div id="image-matrix">
+            <div id="cv-0"></div>
+            <div id="cv-1"></div>
+            <div id="cv-2"></div>
+            <div id="cv-3" style="border: 2px solid red"></div>
+        </div>
+        <script>
+            async function main() {
+                const upload = document.querySelector("#image-upload");
+                const slider = [
+                    document.querySelector("#red-slider"),
+                    document.querySelector("#green-slider"),
+                    document.querySelector("#blue-slider"),
+                ];
+
+                const [red, green, blue, all] = [0, 1, 2, 3].map((i) => {
+                    let cv = document.createElement("canvas");
+                    cv.id = `canvas-${i}`;
+                    document.querySelector(`#cv-${i}`).appendChild(cv);
+
+                    return [cv, cv.getContext("2d")];
+                });
+                const cvs = [red, green, blue, all];
+
+                upload.addEventListener("change", async (e) => {
+                    const file = e.target.files[0];
+                    const image = await createImageBitmap(file);
+
+                    red[0].width = image.width;
+                    red[0].height = image.height;
+                    red[1].drawImage(image, 0, 0);
+                    const redData = red[1].getImageData(
+                        0,
+                        0,
+                        image.width,
+                        image.height
+                    );
+                    for (let i = 0; i < redData.data.length; i += 4) {
+                        redData.data[i + 1] = 0;
+                        redData.data[i + 2] = 0;
+                    }
+                    red[1].putImageData(redData, 0, 0);
+
+                    green[0].width = image.width;
+                    green[0].height = image.height;
+                    green[1].drawImage(image, 0, 0);
+                    const greenData = green[1].getImageData(
+                        0,
+                        0,
+                        image.width,
+                        image.height
+                    );
+                    for (let i = 0; i < greenData.data.length; i += 4) {
+                        greenData.data[i] = 0;
+                        greenData.data[i + 2] = 0;
+                    }
+                    green[1].putImageData(greenData, 0, 0);
+
+                    blue[0].width = image.width;
+                    blue[0].height = image.height;
+                    blue[1].drawImage(image, 0, 0);
+                    const blueData = blue[1].getImageData(
+                        0,
+                        0,
+                        image.width,
+                        image.height
+                    );
+                    for (let i = 0; i < blueData.data.length; i += 4) {
+                        blueData.data[i] = 0;
+                        blueData.data[i + 1] = 0;
+                    }
+                    blue[1].putImageData(blueData, 0, 0);
+
+                    all[0].width = image.width;
+                    all[0].height = image.height;
+                    all[1].drawImage(image, 0, 0);
+                });
+
+                slider.forEach((s, idx) =>
+                    s.addEventListener("input", (ev) => {
+                        // get the value of the slider
+                        const value = parseInt(ev.target.value);
+                        // Get the percentage of the value
+                        const percentage = value / 255;
+
+                        const data = cvs[idx][1].getImageData(
+                            0,
+                            0,
+                            cvs[idx][0].width,
+                            cvs[idx][0].height
+                        );
+
+                        const allData = all[1].getImageData(
+                            0,
+                            0,
+                            all[0].width,
+                            all[0].height
+                        );
+                        for (let i = 0; i < allData.data.length; i += 4) {
+                            allData.data[i + idx] =
+                                data.data[i + idx] * percentage;
+                        }
+                        all[1].putImageData(allData, 0, 0);
+                    })
+                );
+            }
+
+            document.addEventListener("DOMContentLoaded", main);
+        </script>
+    </body>
+</html>

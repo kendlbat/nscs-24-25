@@ -1,0 +1,23 @@
+{
+    "name": "distributed-image",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server.mjs",
+    "scripts": {
+        "dev": "nodemon server.mjs",
+        "start": "node server.mjs",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.21.1",
+        "express-ws": "^5.0.2",
+        "winston": "^3.16.0"
+    },
+    "type": "module",
+    "devDependencies": {
+        "nodemon": "^3.1.7"
+    }
+}

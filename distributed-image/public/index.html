@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Client</title>
+        <style>
+            #show :last-child {
+                border: 2px solid red;
+            }
+        </style>
+    </head>
+    <body>
+        <div
+            id="show"
+            style="
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                flex-wrap: wrap;
+            "
+        ></div>
+        <script>
+            async function main() {
+                const show = document.getElementById("show");
+                // Connect to websocket at /ws
+                const ws = new WebSocket("/ws");
+
+                // When a message is received
+                ws.onmessage = (event) => {
+                    // Create an image element, event data is blob
+                    const img = new Image();
+                    img.width = 200;
+                    img.height = 200;
+                    img.style.objectFit = "contain";
+                    img.src = URL.createObjectURL(event.data);
+                    show.appendChild(img);
+                };
+            }
+
+            main();
+
+            const worker = new Worker("worker.mjs");
+            worker.postMessage("Test");
+        </script>
+    </body>
+</html>

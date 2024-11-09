@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Host</title>
+    </head>
+    <body>
+        <!-- image upload box, send image via websocket -->
+        <p id="socket-state"></p>
+        <input type="file" id="file" accept="image/*" />
+        <button id="send">Send</button>
+        <p><span id="nsent">0</span> images sent.</p>
+        <div id="clients">
+            <h2>Clients</h2>
+            <ul
+                id="client-list"
+                style="display: flex; flex-direction: column"
+            ></ul>
+        </div>
+
+        <script>
+            async function main() {
+                const ws = new WebSocket("/host");
+                const file = document.getElementById("file");
+                const send = document.getElementById("send");
+                const socketState = document.getElementById("socket-state");
+                const clientList = document.getElementById("client-list");
+                const nsent = document.getElementById("nsent");
+                let sent = 0;
+                socketState.textContent = "Connecting...";
+
+                // If ws is not connected, try to reconnect every 3 seconds
+                ws.onclose = () => {
+                    setTimeout(() => {
+                        ws = new WebSocket("/host");
+                    }, 3000);
+                };
+
+                ws.onopen = () => {
+                    socketState.textContent = "Connected";
+                };
+
+                ws.onclose = () => {
+                    socketState.textContent = "Disconnected - Reloading";
+                    // Reload page
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                };
+
+                send.addEventListener("click", () => {
+                    // Send image as blob
+                    const blob = file.files[0];
+                    sent++;
+                    nsent.textContent = sent;
+                    ws.send({ test: true });
+                    ws.send(blob);
+                });
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === "clients") {
+                        clientList.innerHTML = "";
+                        data.clients.forEach((client) => {
+                            const li = document.createElement("li");
+                            li.textContent = `${client.address}:${client.port}`;
+                            clientList.appendChild(li);
+                        });
+                    }
+                };
+            }
+
+            document.addEventListener("DOMContentLoaded", main);
+        </script>
+    </body>
+</html>

@@ -25,3 +25,8 @@ Prerequisites:
 pnpm i
 pnpm start
 ```
+
+Then, use your browser to open:
+
+-   at least one (or multiple) client(s): https://localhost:3000/
+-   one host: https://localhost:3000/host

@@ -28,13 +28,16 @@
 
                 // When a message is received
                 ws.onmessage = (event) => {
-                    // Create an image element, event data is blob
-                    const img = new Image();
-                    img.width = 200;
-                    img.height = 200;
-                    img.style.objectFit = "contain";
-                    img.src = URL.createObjectURL(event.data);
-                    show.appendChild(img);
+                    // Image comes as raw pixel data
+                    // Send to web worker to run median filter
+                    const worker = new Worker("worker.mjs");
+                    worker.postMessage(event.data);
+                    worker.onmessage = (event) => {
+                        ws.send(event.data);
+
+                        // Display image part
+                        const rawPixelData = event.data.chunk;
+                    };
                 };
             }
 

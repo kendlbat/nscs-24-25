@@ -9,6 +9,8 @@
         <!-- image upload box, send image via websocket -->
         <p id="socket-state"></p>
         <input type="file" id="file" accept="image/*" />
+        <input type="number" id="med-w" placeholder="Width" />
+        <input type="number" id="med-h" placeholder="Height" />
         <button id="send">Send</button>
         <p><span id="nsent">0</span> images sent.</p>
         <div id="clients">
@@ -54,8 +56,23 @@
                     const blob = file.files[0];
                     sent++;
                     nsent.textContent = sent;
-                    ws.send({ test: true });
-                    ws.send(blob);
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        ws.send(
+                            JSON.stringify({
+                                data: reader.result,
+                                med_w: parseInt(
+                                    document.getElementById("med-w").value,
+                                    10
+                                ),
+                                med_h: parseInt(
+                                    document.getElementById("med-h").value,
+                                    10
+                                ),
+                            })
+                        );
+                    };
+                    reader.readAsDataURL(blob);
                 });
 
                 ws.onmessage = (event) => {

@@ -2,6 +2,7 @@ import express from "express";
 import { default as expressWsInit } from "express-ws";
 import logger from "./logger.mjs";
 import { dirname } from "path";
+import sharp from "sharp";
 
 const __dirname = dirname(new URL(import.meta.url).pathname);
 
@@ -45,17 +46,24 @@ app.ws("/ws", (ws, req) => {
 });
 
 app.ws("/host", (ws, req) => {
-    ws.on("message", (msg) => {
-        if (msg[0] === "{") {
-            const state = JSON.parse(msg);
-            const host = hosts.find((host) => host === ws);
-            host.state = state;
-            // console.log(host.state);
-        } else {
-            clients.forEach((client) => {
-                client.send(msg);
-            });
-        }
+    ws.on("message", async (msg) => {
+        const message = JSON.parse(msg);
+
+        logger.info(
+            `HOST ${req.socket.remoteAddress} sent message: ${JSON.stringify({
+                ...message,
+                data: message.data.substring(0, 10) + "...",
+            })}`
+        );
+
+        const { med_w, med_h } = message;
+
+        // Convert image to RGBA data
+        const image = sharp(Buffer.from(message.data.split(",")[1], "base64"));
+        const { data, info } = await image
+            .ensureAlpha()
+            .raw()
+            .toBuffer({ resolveWithObject: true });
     });
 
     ws.on("close", () => {

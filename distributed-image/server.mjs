@@ -107,6 +107,7 @@ app.ws("/ws", (ws, req) => {
                                 host.send(
                                     JSON.stringify({
                                         type: "image",
+                                        filter,
                                         image: {
                                             id,
                                             data:

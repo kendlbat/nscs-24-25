@@ -110,6 +110,9 @@
                         img.style.width = "100px";
                         img.style.height = "100px";
                         img.style.objectFit = "contain";
+                        const alt = `Image - ${data.filter.type} filter w: ${data.filter.width} h: ${data.filter.height}`;
+                        img.alt = alt;
+                        img.title = alt;
                         document.getElementById("show").appendChild(img);
                     }
                 };

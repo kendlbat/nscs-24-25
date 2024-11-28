@@ -1,6 +1,6 @@
 # distributed-image
 
-This application has two actors, both of which can have multiple instances. The clients run paralell-processing to calculate median filters. The hosts just serves as a dashboard.
+This application has two actors, both of which can have multiple instances. The clients run parallel-processing to calculate median filters. The hosts just serves as a dashboard.
 
 ## Host
 

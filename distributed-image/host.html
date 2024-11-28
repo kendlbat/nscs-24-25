@@ -12,7 +12,10 @@
         <input type="number" id="med-w" placeholder="Width" />
         <input type="number" id="med-h" placeholder="Height" />
         <button id="send">Send</button>
-        <p><span id="nsent">0</span> images sent.</p>
+        <p>
+            <span id="nsent">0</span> images sent.<br /><span id="nrec">0</span>
+            images received.
+        </p>
         <div id="clients">
             <h2>Clients</h2>
             <ul
@@ -20,6 +23,10 @@
                 style="display: flex; flex-direction: column"
             ></ul>
         </div>
+        <div
+            id="show"
+            style="display: flex; flex-direction: row; flex-wrap: wrap"
+        ></div>
 
         <script>
             async function main() {
@@ -29,7 +36,9 @@
                 const socketState = document.getElementById("socket-state");
                 const clientList = document.getElementById("client-list");
                 const nsent = document.getElementById("nsent");
+                const nrec = document.getElementById("nrec");
                 let sent = 0;
+                let recieved = 0;
                 socketState.textContent = "Connecting...";
 
                 // If ws is not connected, try to reconnect every 3 seconds
@@ -53,6 +62,11 @@
 
                 send.addEventListener("click", () => {
                     // Send image as blob
+                    if (!document.getElementsByClassName("client").length) {
+                        alert("No clients connected");
+                        return;
+                    }
+
                     const blob = file.files[0];
                     sent++;
                     nsent.textContent = sent;
@@ -81,9 +95,21 @@
                         clientList.innerHTML = "";
                         data.clients.forEach((client) => {
                             const li = document.createElement("li");
+                            li.classList.add("client");
                             li.textContent = `${client.address}:${client.port}`;
                             clientList.appendChild(li);
                         });
+                    } else if (data.type === "image") {
+                        recieved++;
+                        nrec.textContent = recieved;
+                        const img = new Image();
+                        img.src = data.image.data;
+                        img.width = data.width;
+                        img.height = data.height;
+                        img.style.width = "100px";
+                        img.style.height = "100px";
+                        img.style.objectFit = "contain";
+                        document.getElementById("show").appendChild(img);
                     }
                 };
             }

@@ -21,6 +21,55 @@
             "
         ></div>
         <script>
+            function convertFromRawBase64(data) {
+                const binaryString = atob(data);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes;
+            }
+
+            function uint8ArrayToCanvas(pixelArray, width, height) {
+                // Ensure width and height are finite numbers
+                if (!Number.isFinite(width) || !Number.isFinite(height)) {
+                    throw new Error("Width and height must be finite numbers.");
+                }
+
+                // Ensure pixelArray length matches the expected size for the given width and height
+                if (pixelArray.length !== width * height * 4) {
+                    throw new Error(
+                        "Pixel array length does not match the expected size for the given width and height."
+                    );
+                }
+
+                // Create a new canvas element
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                canvas.style.border = "1px solid black";
+                canvas.style.width = "100px";
+                canvas.style.height = "100px";
+
+                // Get the 2D drawing context of the canvas
+                const ctx = canvas.getContext("2d");
+
+                // Create an ImageData object
+                const imageData = ctx.createImageData(width, height);
+
+                // Copy the pixel values into the ImageData object
+                for (let i = 0; i < pixelArray.length; i++) {
+                    imageData.data[i] = pixelArray[i];
+                }
+
+                // Put the ImageData object onto the canvas
+                ctx.putImageData(imageData, 0, 0);
+
+                // Return the canvas element
+                return canvas;
+            }
+
             async function main() {
                 const show = document.getElementById("show");
                 // Connect to websocket at /ws
@@ -30,21 +79,44 @@
                 ws.onmessage = (event) => {
                     // Image comes as raw pixel data
                     // Send to web worker to run median filter
-                    const worker = new Worker("worker.mjs");
-                    worker.postMessage(event.data);
+                    const worker = new Worker("worker.mjs", {
+                        type: "module",
+                    });
+                    const data = JSON.parse(event.data);
+                    // Print data.image.data as hex
                     worker.onmessage = (event) => {
-                        ws.send(event.data);
-
-                        // Display image part
-                        const rawPixelData = event.data.chunk;
+                        if (event.data instanceof Error) {
+                            alert("Error: " + event.data.message);
+                            console.error(event.data);
+                            return;
+                        }
+                        // Show image
+                        const canvas = uint8ArrayToCanvas(
+                            convertFromRawBase64(event.data.image.data),
+                            event.data.image.width,
+                            event.data.image.height
+                        );
+                        show.appendChild(canvas);
+                        ws.send(JSON.stringify(event.data));
                     };
+                    worker.postMessage(data);
+
+                    try {
+                        const canvas = uint8ArrayToCanvas(
+                            convertFromRawBase64(data.image.data),
+                            data.image.width,
+                            data.image.height
+                        );
+                        show.appendChild(canvas);
+                    } catch (e) {
+                        console.error(e);
+                    }
                 };
             }
 
             main();
 
             const worker = new Worker("worker.mjs");
-            worker.postMessage("Test");
         </script>
     </body>
 </html>
